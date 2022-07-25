@@ -1,10 +1,11 @@
 let maze = document.getElementsByTagName('canvas')[0];
 let ctx = maze.getContext('2d');
 
-maze.width = document.body.clientWidth;
-maze.height = document.body.clientHeight - 7;
-
+maze.width = window.innerWidth;
+maze.height = window.innerHeight;
 let current;
+
+let grid;
 
 class Maze {
       constructor(size, rows, columns) {
@@ -15,23 +16,29 @@ class Maze {
             this.stack = [];
       }
 
-      setUp() {
+      setup() {
             for (let r = 0; r < this.rows; r++) {
                   let row = [];
                   for (let c = 0; c < this.columns; c++) {
-                        let cell = new Cell(r, c, this.grid, this.size);
+                        let cell = new Cell(r, c);
                         row.push(cell);
                   }
                   this.grid.push(row);
             }
             current = this.grid[0][0];
+            console.table(this.grid);
+            for (let r = 0; r < this.rows; r++) {
+                  for (let c = 0; c < this.columns; c++) {
+                        this.grid[r][c].neighbours = this.checkNeighbours(this.grid[r][c]);
+                  }
+            }
       }
 
-      draw() {
+      drawGrid() {
             maze.width = this.size;
             maze.height = this.size;
-            maze.style.background = "#00000000";
-            current.visited = true;
+            // maze.style.background = "black";
+            // current.visited = true;
 
             for (let r = 0; r < this.rows; r++) {
                   for (let c = 0; c < this.columns; c++) {
@@ -40,70 +47,139 @@ class Maze {
                   }
             }
 
-            let next = current.checkNeighbours();
+            grid = this.grid;
+      }
 
-            if (next) {
-                  next.visited = true;
-                  this.stack.push(current);
-                  current.highlight(this.columns);
-                  current.removeWalls(current, next);
-                  current = next;
-            } else if (this.stack.length > 0) {
-                  let cell = this.stack.pop();
-                  current = cell;
-                  current.highlight(this.columns);
+      backTrack() {
+            for (let i = this.stack.length - 1; i > -1; i--) {
+                  if (this.stack[i].neighbours.length > 0) {
+                        for (let j = 0; j < this.stack[i].neighbours.length; j++) {
+                              if (this.stack[i].neighbours[j].visited == true) {
+                                    this.stack[i].neighbours.splice(j, 1);
+                              } else {
+                                    return this.stack[i].neighbours[j];
+                              }
+                        }
+                  }
+            }
+      }
+
+      checkNeighbours(currentBox) {
+
+            let neighbours = [];
+
+            neighbours.push(this.grid[currentBox.rowNum][currentBox.colNum + 1]);
+            neighbours.push(this.grid[currentBox.rowNum][currentBox.colNum - 1]);
+            try {
+                  neighbours.push(this.grid[currentBox.rowNum - 1][currentBox.colNum]);
+            } catch (e) { }
+            try {
+                  neighbours.push(this.grid[currentBox.rowNum + 1][currentBox.colNum]);
+            } catch (e) { }
+
+            for (let i = 0; i < neighbours.length; i++) {
+                  if (neighbours[i] == null) {
+                        neighbours.splice(i, 1);
+                  }
             }
 
-            if (this.stack.length == 0) {
-                  return;
+            return neighbours;
+      }
+
+      drawPath() {
+            let startingCell = [];
+            let currentCell;
+
+            for (let i = 0; i < this.grid[0].length; i++) {
+                  startingCell.push(this.grid[0][i]);
+                  startingCell.push(this.grid[i][0]);
+            }
+            for (let i = 0; i < 2; i++) {
+                  startingCell.pop();
             }
 
-            window.requestAnimationFrame(() => {
-                  this.draw();
-            });
+            let selectStartingCell = startingCell[Math.floor(Math.random() * startingCell.length)];
+            let selectEndingCell = this.grid[this.grid.length - selectStartingCell.rowNum - 1][this.grid[0].length - selectStartingCell.colNum - 1];
+
+            if (selectStartingCell.rowNum == selectStartingCell.colNum) {
+                  let rowCol = Math.random();
+
+                  if (rowCol < 0.5) {
+                        selectStartingCell.wall.topWall = false;
+                  } else {
+                        selectStartingCell.wall.leftWall = false;
+                  }
+            } else {
+                  if (selectStartingCell.rowNum == 0) {
+                        selectStartingCell.wall.topWall = false;
+                  } else {
+                        selectStartingCell.wall.leftWall = false;
+                  }
+            }
+
+            currentCell = selectStartingCell;
+            currentCell.visited = true;
+            this.stack.push(currentCell);
+
+
+            while (this.stack.length != this.grid.length * this.grid[0].length) {
+                  let lastCell = currentCell;
+                  currentCell = currentCell.neighbours[Math.floor(Math.random() * currentCell.neighbours.length)];
+
+                  if (currentCell == undefined) currentCell = this.backTrack();
+
+                  if (lastCell.rowNum - currentCell.rowNum == -1 && lastCell.colNum - currentCell.colNum == 0) {
+                        lastCell.wall.bottomWall = false;
+                        currentCell.wall.topWall = false;
+                  } else if (lastCell.rowNum - currentCell.rowNum == 1 && lastCell.colNum - currentCell.colNum == 0) {
+                        lastCell.wall.topWall = false;
+                        currentCell.wall.bottomWall = false;
+                  } else if (lastCell.rowNum - currentCell.rowNum == 0 && lastCell.colNum - currentCell.colNum == -1) {
+                        lastCell.wall.rightWall = false;
+                        currentCell.wall.leftWall = false;
+                  } else if (lastCell.rowNum - currentCell.rowNum == 0 && lastCell.colNum - currentCell.colNum == 1) {
+                        lastCell.wall.leftWall = false;
+                        currentCell.wall.rightWall = false;
+                  } else {
+                        console.log("it was backtraked");
+                  }
+                  for (let i = 0; i < currentCell.neighbours.length; i++) {
+                        let rowNo = currentCell.neighbours[i].rowNum;
+                        let colNo = currentCell.neighbours[i].colNum;
+                        for (let r = 0; r < this.grid[rowNo][colNo].neighbours.length; r++) {
+                              if ((this.grid[rowNo][colNo].neighbours[r].rowNum == currentCell.rowNum && this.grid[rowNo][colNo].neighbours[r].colNum == currentCell.colNum) || this.grid[rowNo][colNo].neighbours[r].visited == true) this.grid[rowNo][colNo].neighbours.splice(r, 1);
+                        }
+                  }
+                  currentCell.visited = true;
+                  this.stack.push(currentCell);
+            }
+
+            console.log(this.stack);
+
+            ctx.clearRect(0, 0, 500, 500);
+            for (let r = 0; r < this.rows; r++) {
+                  for (let c = 0; c < this.columns; c++) {
+                        this.grid[r][c].show(this.size, this.rows, this.columns);
+                  }
+            }
       }
 }
 
 class Cell {
-      constructor(rowNum, colNum, parentGrid, parentSize) {
+      constructor(rowNum, colNum) {
             this.rowNum = rowNum;
             this.colNum = colNum;
-            this.parentGrid = parentGrid;
-            this.parentSize = parentSize;
             this.visited = false;
-            this.walls = {
+            this.wall = {
                   topWall: true,
                   rightWall: true,
                   bottomWall: true,
                   leftWall: true
-            }
+            };
+            this.neighbours = [];
       }
 
-      checkNeighbours() {
-            let grid = this.parentGrid;
-            let row = this.rowNum;
-            let col = this.colNum;
-            let neighbours = [];
-
-            let top = row !== 0 ? grid[row - 1][col] : undefined;
-            let right = col !== grid.length - 1 ? grid[row][col + 1] : undefined;
-            let bottom = row !== grid.length - 1 ? grid[row + 1][col] : undefined;
-            let left = col !== 0 ? grid[row][col - 1] : undefined;
-
-            if (top.visited && !top.visited) neighbours.push(top);
-            if (right.visited && !right.visited) neighbours.push(right);
-            if (bottom.visited && !bottom.visited) neighbours.push(bottom);
-            if (left.visited && !left.visited) neighbours.push(left);
-
-            if (neighbours.length !== 0) {
-                  let random = Math.floor(Math.random * neighbours.length);
-                  return neighbours[random];
-            } else {
-                  return undefined;
-            }
-      }
-
-      drawTopWall(x, y, size, columns) {
+      drawTopWall(x, y, size, columns, rows) {
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.lineTo(x + size / columns, y);
@@ -124,57 +200,29 @@ class Cell {
             ctx.stroke();
       }
 
-      drawLeftWall(x, y, size, rows) {
+      drawLeftWall(x, y, size, columns, rows) {
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.lineTo(x, y + size / rows);
             ctx.stroke();
       }
 
-      highlight(columns) {
-            let x = (this.colNum * this.parentSize) / columns + 1;
-            let y = (this.rowNum * this.parentSize) / columns + 1;
-
-            ctx.fillStyle = "purple";
-            ctx.fillRect(x, y, this.parentSize / columns - 3, this.parentSize / columns - 3);
-      }
-
-      removeWalls(cell1, cell2) {
-            let x = cell1.colNum - cell2.colNum;
-
-            if (x == 1) {
-                  cell1.walls.leftWall = false;
-                  cell2.walls.rightWall = false;
-            } else if (x == -1) {
-                  cell1.walls.rightWall = false;
-                  cell2.walls.leftWall = false;
-            }
-
-            let y = cell1.rowNum - cell2.rowNum;
-
-            if (y == 1) {
-                  cell1.walls.topWall = false;
-                  cell2.walls.bottomWall = false;
-            } else if (y == -1) {
-                  cell1.walls.bottomWall = false;
-                  cell2.walls.toptWall = false;
-            }
+      removeWall(x, y, size, columns, rows) {
+            ctx.clearRect(x, y, x + (size / columns), y + 1);
       }
 
       show(size, rows, columns) {
-            let x = (this.colNum * size) / columns;
-            let y = (this.rowNum * size) / rows;
+            let x = this.colNum * size / columns;
+            let y = this.rowNum * size / rows;
 
-            ctx.shadowColor = "#ffffff60";
-            ctx.shadowBlur = 6;
-            ctx.strokeStyle = "#fff";
-            ctx.fillStyle = "#00000000";
+            ctx.strokeStyle = "white";
+            ctx.fillStyle = "#ffffff00";
             ctx.lineWidth = 2;
 
-            if (this.walls.topWall) this.drawTopWall(x, y, size, columns);
-            if (this.walls.rightWall) this.drawRightWall(x, y, size, columns, rows);
-            if (this.walls.bottomWall) this.drawBottomWall(x, y, size, columns, rows);
-            if (this.walls.leftWall) this.drawLeftWall(x, y, size, rows);
+            if (this.wall.topWall) this.drawTopWall(x, y, size, columns, rows);
+            if (this.wall.rightWall) this.drawRightWall(x, y, size, columns, rows);
+            if (this.wall.bottomWall) this.drawBottomWall(x, y, size, columns, rows);
+            if (this.wall.leftWall) this.drawLeftWall(x, y, size, columns, rows);
             if (this.visited) {
                   ctx.fillRect(x + 1, y + 1, size / columns - 2, size / rows - 2);
             }
@@ -182,5 +230,6 @@ class Cell {
 }
 
 let newMaze = new Maze(500, 10, 10);
-newMaze.setUp();
-newMaze.draw();
+newMaze.setup();
+newMaze.drawGrid();
+newMaze.drawPath();
