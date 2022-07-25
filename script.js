@@ -57,7 +57,7 @@ class Maze {
                               if (this.stack[i].neighbours[j].visited == true) {
                                     this.stack[i].neighbours.splice(j, 1);
                               } else {
-                                    return this.stack[i].neighbours[j];
+                                    return [this.stack[i].neighbours[j], this.stack[i]];
                               }
                         }
                   }
@@ -126,7 +126,12 @@ class Maze {
                   let lastCell = currentCell;
                   currentCell = currentCell.neighbours[Math.floor(Math.random() * currentCell.neighbours.length)];
 
-                  if (currentCell == undefined) currentCell = this.backTrack();
+                  if (currentCell == undefined) {
+                        currentCell = this.backTrack()[0];
+                        lastCell = this.backTrack()[1];
+                        console.log(lastCell);
+                        console.log(currentCell);
+                  }
 
                   if (lastCell.rowNum - currentCell.rowNum == -1 && lastCell.colNum - currentCell.colNum == 0) {
                         lastCell.wall.bottomWall = false;
@@ -155,7 +160,9 @@ class Maze {
             }
 
             console.log(this.stack);
+      }
 
+      draw() {
             ctx.clearRect(0, 0, 500, 500);
             for (let r = 0; r < this.rows; r++) {
                   for (let c = 0; c < this.columns; c++) {
