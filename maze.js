@@ -6,6 +6,9 @@ maze.height = window.innerHeight;
 
 let size = window.innerWidth - 100;
 
+let selectStartingCell;
+let selectEndingCell;
+
 if (window.innerWidth > window.innerHeight) size = window.innerHeight - 100;
 
 class Maze {
@@ -96,8 +99,11 @@ class Maze {
                   startingCell.pop();
             }
 
-            let selectStartingCell = startingCell[Math.floor(Math.random() * startingCell.length)];
-            let selectEndingCell = this.grid[this.grid.length - selectStartingCell.rowNum - 1][this.grid[0].length - selectStartingCell.colNum - 1];
+            selectStartingCell = startingCell[Math.floor(Math.random() * startingCell.length)];
+            selectEndingCell = this.grid[this.grid.length - selectStartingCell.rowNum - 1][this.grid[0].length - selectStartingCell.colNum - 1];
+
+            selectStartingCell.start = true;
+            selectEndingCell.end = true;
 
             if (selectStartingCell.rowNum == selectStartingCell.colNum) {
                   let rowCol = Math.random();
@@ -186,6 +192,8 @@ class Cell {
                   leftWall: true
             };
             this.neighbours = [];
+            this.start = false;
+            this.end = false;
       }
 
       drawTopWall(x, y, size, columns, rows) {
@@ -231,7 +239,7 @@ class Cell {
       }
 }
 
-let newMaze = new Maze(size, 20, 20);
+let newMaze = new Maze(size, 15, 15);
 newMaze.setup();
 newMaze.drawGrid();
 newMaze.drawPath();

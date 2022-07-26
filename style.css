@@ -22,3 +22,8 @@ body {
 	align-items: center;
 	justify-content: center;
 }
+
+.maze {
+	position: absolute;
+	top: 10px;
+}
