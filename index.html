@@ -7,20 +7,24 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Maze Game</title>
       <link rel="stylesheet" href="./style.css">
-      <link rel="shortcut icon" href="./icon.ico" type="image/x-icon">
+      <link rel="shortcut icon" href="./source/icon.ico" type="image/x-icon">
       <script src="./maze.js" defer></script>
       <script src="./player.js" defer></script>
 </head>
 
 <body>
       <div class="maze">
+            <div class="timer"></div>
             <canvas></canvas>
       </div>
       <div class="d-pad">
-            <span class="left"></span>
-            <span class="up"></span>
-            <span class="right"></span>
-            <span class="down"></span>
+            <span class="left" data-key="37"></span>
+            <span class="up" data-key="38"></span>
+            <span class="right" data-key="39"></span>
+            <span class="down" data-key="40"></span>
+      </div>
+      <div class="win">
+            YOU WIN!
       </div>
 </body>
 

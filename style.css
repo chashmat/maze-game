@@ -1,12 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,300;0,400;0,500;1,200;1,300;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 * {
 	margin: 0px;
 	padding: 0px;
 	box-sizing: border-box;
-	font-family: 'Poppins', sans-serif;
+	font-family: 'Press Start 2P', sans-serif;
 	user-select: none;
-	/* transition: all 0.25s; */
+	transition: all 0.25s;
+	overflow: hidden;
+}
+
+::-webkit-scrollbar {
+	display: none;
 }
 
 html {
@@ -20,10 +25,98 @@ body {
 	background: linear-gradient(to left top, #051937, #004d7a, #008793, #00bf72, #a8eb12);
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: space-around;
+}
+
+body.potrait {
+	flex-direction: column;
+}
+
+body.landscape {
+	flex-direction: row;
 }
 
 .maze {
-	position: absolute;
+	position: relative;
+}
+
+
+.maze.potrait {
 	top: 10px;
+}
+
+.d-pad.touch {
+	padding: 85px;
+	border-radius: 100%;
+	background: #d6d7d761;
+	margin: 20px 0px;
+	position: relative;
+}
+
+.d-pad.touch span {
+	position: absolute;
+	height: 50px;
+	width: 50px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 24px 13px 13px 24px;
+	background-image: url(./source/arrow.png);
+	filter: invert(1) drop-shadow(0px 0px 6px #000000b9);
+}
+
+.d-pad.touch span.active {
+	background-color: #00000059;
+}
+
+.d-pad.touch span.up {
+	top: 0px;
+	transform: translateX(-50%) rotate(90deg);
+}
+
+.d-pad.touch span.down {
+	bottom: 0px;
+	transform: translateX(-50%) rotate(270deg);
+}
+
+.d-pad.touch span.left {
+	left: 0px;
+	transform: translateY(-50%);
+}
+
+.d-pad.touch span.right {
+	right: 0px;
+	transform: translateY(-50%) rotate(180deg);
+}
+
+.win {
+	position: absolute;
+	height: 105vh;
+	width: 100vw;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 50px;
+	font-weight: 600;
+	background: #00000061;
+	color: #ffffffc4;
+	top: -105vh;
+}
+
+.win.animate {
+	animation: win 2s ease-in-out 0s 1;
+}
+
+@keyframes win {
+	0% {
+		top: -105vh;
+	}
+
+	20% {
+		top: 0vh;
+	}
+
+	100% {
+		top: -5vh;
+	}
 }

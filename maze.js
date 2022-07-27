@@ -4,7 +4,7 @@ let ctx = maze.getContext('2d');
 maze.width = window.innerWidth;
 maze.height = window.innerHeight;
 
-let size = window.innerWidth - 100;
+let size = window.innerWidth - 50;
 
 let selectStartingCell;
 let selectEndingCell;
