@@ -95,7 +95,7 @@ function move(eve) {
 
 function winScreen() {
       winDom.classList.add("animate");
-      setTimeout(() => winDom.style.top = "-5vh", 2000);
+      setTimeout(() => winDom.style.top = "0vh", 2000);
       enable = false;
       win.play();
 }

@@ -239,7 +239,7 @@ class Cell {
       }
 }
 
-let newMaze = new Maze(size, 15, 15);
+let newMaze = new Maze(size, 5, 5);
 newMaze.setup();
 newMaze.drawGrid();
 newMaze.drawPath();

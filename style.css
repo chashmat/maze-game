@@ -104,7 +104,7 @@ body.landscape {
 }
 
 .win.animate {
-	animation: win 2s ease-in-out 0s 1;
+	animation: win 2s linear 0s 1;
 }
 
 @keyframes win {
@@ -116,7 +116,23 @@ body.landscape {
 		top: 0vh;
 	}
 
-	100% {
+	90% {
 		top: -5vh;
+	}
+
+	100% {
+		top: 0vh;
+	}
+}
+
+@media screen and (max-width: 400px) {
+	.win {
+		font-size: 40px;
+	}
+}
+
+@media screen and (max-width: 320px) {
+	.win {
+		font-size: 32px;
 	}
 }
