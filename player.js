@@ -12,6 +12,8 @@ let mazeDiv = document.getElementsByClassName('maze')[0];
 let timer = document.getElementsByClassName('timer')[0];
 let dPad = document.getElementsByClassName('d-pad')[0];
 let winDom = document.getElementsByClassName('win')[0];
+let labels = document.getElementsByTagName('label');
+let input = document.getElementsByTagName('input');
 
 player.onload = () => {
       w = newMaze.size / newMaze.rows;
@@ -124,4 +126,33 @@ if ("ontouchstart" in window || window.navigator.maxTouchPoints) {
                   btn[i].classList.toggle("active")
             });
       }
+}
+
+for (let i = 0; i < labels.length; i++) {
+      let joined = ``;
+      for (let j = 0; j < labels[i].innerText.split('').length; j++) {
+            let splittedTxt = labels[i].innerText.split('');
+            joined += `<span style="transition-delay: ${j * 50}ms;">${splittedTxt[j]}</span>`;
+      }
+      labels[i].innerHTML = joined;
+}
+
+for (let i = 0; i < 3; i++) {
+      input[i].addEventListener("keypress", eve => {
+            setTimeout(() => {
+                  if (input[i].value == "-") {
+                        console.log(input[i].value);
+                        input[i].value = '';
+                  }
+                  let txt = input[i].value.split('');
+                  if (txt.length == 3) {
+                        txt.pop();
+                        txt.splice(1, 1, eve.key);
+                        input[i].value = '';
+                        for (let j = 0; j < txt.length; j++) {
+                              input[i].value += txt[j];
+                        }
+                  }
+            }, 0);
+      });
 }
